@@ -13,19 +13,17 @@ knitr::opts_chunk$set(
 )
 ```
 
-# SOPGLAD
+# SOPG-LAD
 
-<!-- badges: start -->
-<!-- badges: end -->
-
-The goal of SOPGLAD is to performing variable selection in general single index models with outlier contamination.
+SOPG-LAD performs sufficient variable selection in generalized single index models with outlies contamination.
 
 ## Installation
 
 You can install the development version of SOPGLAD like so:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+remotes::install_github("ansoale/SOPG-LAD"
+
 ```
 
 ## Example
