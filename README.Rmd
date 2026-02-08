@@ -1,0 +1,85 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# SOPGLAD
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of SOPGLAD is to performing variable selection in general single index models with outlier contamination.
+
+## Installation
+
+You can install the development version of SOPGLAD like so:
+
+``` r
+# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+```
+
+## Example
+
+This is a basic example which shows you how to apply SOPG-LAD:
+
+```{r example}
+library(SOPGLAD)
+library(LaplacesDemon)
+require(conquer)
+require(irlba)
+
+n0 <- 48   ## number of uncontaminated observations
+inf.obs <- 2   ## number of outliers
+n <- 50
+p <- 5 ## number of predictors 
+Sig <- 0.5^abs(outer(1:p,1:p,"-"))   ## AR correlation
+beta <- c(-2, 0, 0.5, 1.5, 0)
+
+
+## generate X and Y
+X0 <- LaplacesDemon::rmvn(n0, rep(0,p), Sig)
+eps <- rnorm(n0,0,1)
+Y0 <- 0.5 + (X0%*%beta) + 0.8*eps
+dat0 <- data.frame(X=X0,Y=Y0)
+      
+##leverage only contamination
+X1 <- LaplacesDemon::rmvt(inf.obs, rep(5,p), Sig, df=10)
+Y1 <- 0.5 + (X1%*%beta) + 0.8*rnorm(inf.obs)
+
+# ##response outlier only contamination
+# X1 <- LaplacesDemon::rmvn(inf.obs, rep(0,p), Sig)
+# Y1 <- 0.5 + (X1%*%beta) + 0.8*rchisq(inf.obs, 5)
+
+## both leverage and response outlier contamination
+# X1 <- LaplacesDemon::rmvt(inf.obs, rep(5,p), Sig, df=10)
+# Y1 <- 0.5 + (X1%*%beta) + 0.8*rchisq(inf.obs, 5)
+
+## contaminated data
+dat1 <- data.frame(X=X1,Y=Y1)
+
+## combine the contaminated and uncontaminated data
+dat <- rbind(dat0, dat1)
+dat <- dat[sample(1:n),]   ## mix the samples up -- but not necessary
+X <- as.matrix(dat[, 1:p])
+Y <- dat$Y
+
+## Apply SOPG-LAD
+contr <- 0.01    ## set contribution threshold
+lambda <- 0.1    ## should be between 0 and 1
+
+B.sopg_lad <- sopg_lad(X,Y,lambda=lambda, M=NULL, tol=contr, lambda.cv=FALSE)
+
+B.sopg_lad
+
+```
+
